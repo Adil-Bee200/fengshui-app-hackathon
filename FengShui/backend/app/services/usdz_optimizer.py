@@ -1110,6 +1110,18 @@ IMPORTANT:
         existing_t = existing_transform.get("translate", (0.0, 0.0, 0.0)) if existing_transform else (0.0, 0.0, 0.0)
         y = float(existing_t[1])  # preserve vertical placement
 
+        # Final safety clamp to floor-plan bounds (prevents "in wall"/outside-room even if upstream
+        # normalization was bypassed or the model output was weird).
+        plan_bounds = getattr(self, "_current_plan_bounds", None)
+        if isinstance(plan_bounds, tuple) and len(plan_bounds) == 4:
+            try:
+                min_x, max_x, min_p, max_p = plan_bounds  # p == request y == USD Z
+                margin = 0.05
+                x = min(max(x, float(min_x) + margin), float(max_x) - margin)
+                z = min(max(z, float(min_p) + margin), float(max_p) - margin)
+            except Exception:
+                pass
+
         # Clamp to floor (prevents sinking beneath ground)
         floor_y = getattr(self, "_current_floor_y", None)
         if isinstance(floor_y, (int, float)):
@@ -1129,7 +1141,8 @@ IMPORTANT:
             if existing_transform.get("has_translate") or True:  # Always set translate
                 lines.append(f'double3 xformOp:translate = ({x}, {y}, {z})')
             if existing_transform.get("has_rotate") or True:  # Always set rotation
-                lines.append(f'double3 xformOp:rotateXYZ = (0, 0, {new_rot_deg})')
+                # Rotate around Y (USD is Y-up); this matches the matrix path behavior.
+                lines.append(f'double3 xformOp:rotateXYZ = (0, {new_rot_deg}, 0)')
             if existing_transform.get("has_scale"):
                 lines.append(f'double3 xformOp:scale = ({scale[0]}, {scale[1]}, {scale[2]})')
             return '\n'.join(lines)
