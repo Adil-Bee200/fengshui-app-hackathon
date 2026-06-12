@@ -4,6 +4,21 @@
 
 Hackathon project built at nwHacks 2026, combining Apple RoomPlan, FastAPI, and optional AI-powered layout feedback to analyze room layouts and generate Feng Shui recommendations.
 
+---
+
+## Screenshots
+
+| | |
+|---|---|
+| **Home** : app entry point | **Room type** : user selects bedroom, office, etc. |
+| ![Home screen](docs/assets/01-home.png) | ![Room type selection](docs/assets/02-room-type.png) |
+
+| |
+|---|
+| **Feng Shui intention** : user picks a Bagua focus (wealth, health, career, etc.) |
+| ![Intention selection](docs/assets/03-intention.png) |
+
+---
 
 ## My Contribution
 - Designed backend API endpoints using FastAPI
